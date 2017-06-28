@@ -28,8 +28,8 @@
   "dependencies": {
     "polymer": "Polymer/polymer#^1.1.0",
     "polymer-ts": "^0.1.26",
-    "lss-user-manager": "*",
-    "lss-inject": "*"
+    "lss-user-manager": "^2.0.0",
+    "lss-inject": "^1.0.1"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0",
