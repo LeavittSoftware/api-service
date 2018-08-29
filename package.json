@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "lss-api-service.html",
+  "files": [
+    "lib",
+    "src"
+  ],
   "dependencies": {
     "@leavittsoftware/titanium-elements": "^1.0.22",
     "@leavittsoftware/user-manager": "^7.0.44",
