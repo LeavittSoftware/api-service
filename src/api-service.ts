@@ -1,36 +1,26 @@
-﻿import {titaniumDevDetectionMixin} from '@leavittsoftware/titanium-elements/lib/titanium-dev-detection-mixin.js';
-import {authenticatedTokenMixin} from '@leavittsoftware/user-manager/lib/authenticated-token-mixin';
-import {customElement, observe, property} from '@polymer/decorators';
-import {PolymerElement} from '@polymer/polymer/polymer-element';
+﻿import {BearerTokenProvider} from './bearer-token-provider';
+import {GetResult} from './get-result';
+import {ODataDto} from './odata-dto';
 
-@customElement('api-service') export class ApiService extends titaniumDevDetectionMixin
-(authenticatedTokenMixin(PolymerElement)) {
-  @property({notify: true, type: Boolean}) isDev: boolean;
-
-  @property({notify: true, type: String}) baseUrl: string;
-
-  @property({type: Boolean}) isLoading: boolean;
-
-  @property({notify: true, type: String}) baseProductionUri: string = 'https://api2.leavitt.com/';
-
-  @property({notify: true, type: String}) baseDevUri: string = 'https://devapi2.leavitt.com/';
-
-  @property({notify: true, type: String}) appNameKey: string = 'X-LGAppName';
-
-  @property({notify: true, type: String}) appName: string = 'General';
-
-  @observe('isDev')
-  _environmentHandler(isDev: boolean) {
-    this.baseUrl = isDev ? this.baseDevUri : this.baseProductionUri;
+export class ApiService {
+  constructor(tokenProvider: BearerTokenProvider) {
+    this._tokenProvider = tokenProvider;
+    this.addHeader('Content-Type', 'application/json');
+    this.addHeader('X-LGAppName', 'General');
   }
 
-  private _createUri(urlPath: string): string {
-    return this.baseUrl + urlPath;
+  private _tokenProvider: BearerTokenProvider;
+
+  addHeader(key: string, value: string) {
+    this.headers[key] = value;
   }
 
-  private async _getTokenAsync() {
-    return await this._getAccessTokenAsync();
+  deleteHeader(key: string) {
+    delete this.headers[key];
   }
+
+  headers = {} as any;
+  baseUrl: string = 'https://api2.leavitt.com/';
 
   async postAsync<T>(urlPath: string, body: any&ODataDto, appName: string|null = null): Promise<T|null> {
     // Add in the odata model info if it not already on the object
@@ -40,14 +30,16 @@ import {PolymerElement} from '@polymer/polymer/polymer-element';
       }
       delete body._odataInfo;
     }
-    let headers: any = {'Content-Type': 'application/json'};
-    headers['Authorization'] = `Bearer ${await this._getTokenAsync()}`;
-    if (this.appNameKey !== '')
-      headers[this.appNameKey] = appName || this.appName;
+
+    if (appName !== null) {
+      this.addHeader('X-LGAppName', appName);
+    }
+
+    this.addHeader('Authorization', `Bearer ${await this._tokenProvider._getBearerTokenAsync()}`);
 
     let response;
     try {
-      response = await fetch(this._createUri(urlPath), {method: 'POST', body: JSON.stringify(body), headers: headers});
+      response = await fetch(`${this.baseUrl}${urlPath}`, {method: 'POST', body: JSON.stringify(body), headers: this.headers});
     } catch (error) {
       if (error.message != null && error.message.indexOf('Failed to fetch') !== -1)
         return Promise.reject('Network error. Check your connection and try again.');
@@ -85,15 +77,15 @@ import {PolymerElement} from '@polymer/polymer/polymer-element';
       }
       delete body._odataInfo;
     }
-    let headers: any = {'Content-Type': 'application/json'};
-    headers['Authorization'] = `Bearer ${await this._getTokenAsync()}`;
+    if (appName !== null) {
+      this.addHeader('X-LGAppName', appName);
+    }
 
-    if (this.appNameKey !== '')
-      headers[this.appNameKey] = appName || this.appName;
+    this.addHeader('Authorization', `Bearer ${await this._tokenProvider._getBearerTokenAsync()}`);
 
     let response;
     try {
-      response = await fetch(this._createUri(urlPath), {method: 'PATCH', body: JSON.stringify(body), headers: headers});
+      response = await fetch(`${this.baseUrl}${urlPath}`, {method: 'PATCH', body: JSON.stringify(body), headers: this.headers});
     } catch (error) {
       if (error.message != null && error.message.indexOf('Failed to fetch') !== -1)
         return Promise.reject('Network error. Check your connection and try again.');
@@ -127,17 +119,15 @@ import {PolymerElement} from '@polymer/polymer/polymer-element';
       }
       delete body._odataInfo;
     }
-    let headers: any = {'Content-Type': 'application/json'};
-    headers['Authorization'] = `Bearer ${await this._getTokenAsync()}`;
+    if (appName !== null) {
+      this.addHeader('X-LGAppName', appName);
+    }
 
-    if (this.appNameKey !== '')
-      headers[this.appNameKey] = appName || this.appName;
-
-    headers['Prefer'] = 'return=representation';
+    this.addHeader('Authorization', `Bearer ${await this._tokenProvider._getBearerTokenAsync()}`);
 
     let response;
     try {
-      response = await fetch(this._createUri(urlPath), {method: 'PATCH', body: JSON.stringify(body), headers: headers});
+      response = await fetch(`${this.baseUrl}${urlPath}`, {method: 'PATCH', body: JSON.stringify(body), headers: {...this.headers, 'Prefer': 'return=representation'}});
     } catch (error) {
       if (error.message != null && error.message.indexOf('Failed to fetch') !== -1)
         return Promise.reject('Network error. Check your connection and try again.');
@@ -164,14 +154,15 @@ import {PolymerElement} from '@polymer/polymer/polymer-element';
   }
 
   async deleteAsync(urlPath: string, appName: string|null = null): Promise<void> {
-    let headers: any = {'Content-Type': 'application/json'};
-    headers['Authorization'] = `Bearer ${await this._getTokenAsync()}`;
-    if (this.appNameKey !== '')
-      headers[this.appNameKey] = appName || this.appName;
+    if (appName !== null) {
+      this.addHeader('X-LGAppName', appName);
+    }
+
+    this.addHeader('Authorization', `Bearer ${await this._tokenProvider._getBearerTokenAsync()}`);
 
     let response;
     try {
-      response = await fetch(this._createUri(urlPath), {method: 'DELETE', headers: headers});
+      response = await fetch(`${this.baseUrl}${urlPath}`, {method: 'DELETE', headers: this.headers});
     } catch (error) {
       if (error.message != null && error.message.indexOf('Failed to fetch') !== -1)
         return Promise.reject('Network error. Check your connection and try again.');
@@ -206,18 +197,17 @@ import {PolymerElement} from '@polymer/polymer/polymer-element';
   }
 
   async getAsync<T extends ODataDto>(urlPath: string, appName: string|null = null): Promise<GetResult<T>> {
-    let headers: any = {'Content-Type': 'application/json'};
-    headers['Authorization'] = `Bearer ${await this._getTokenAsync()}`;
-    headers['Accept'] = 'application/json';
+    if (appName !== null) {
+      this.addHeader('X-LGAppName', appName);
+    }
 
-    if (this.appNameKey !== '')
-      headers[this.appNameKey] = appName || this.appName;
+    this.addHeader('Authorization', `Bearer ${await this._tokenProvider._getBearerTokenAsync()}`);
 
     let response;
     try {
-      response = await fetch(this._createUri(urlPath), {
+      response = await fetch(`${this.baseUrl}${urlPath}`, {
         method: 'GET',
-        headers: headers
+        headers: this.headers
 
       });
 
@@ -245,73 +235,4 @@ import {PolymerElement} from '@polymer/polymer/polymer-element';
 
     return Promise.resolve(new GetResult<T>(json));
   }
-};
-
-export class GetResult<T extends ODataDto> {
-  private data: Array<T>;
-  public odataCount: number;
-  constructor(json: any) {
-    if (!isNaN(Number(json['@odata.count']))) {
-      this.odataCount = Number(json['@odata.count']);
-    }
-
-    if (Array.isArray(json.value)) {
-      this.data = json.value.map((o: any) => {
-        return GetResult.convertODataInfo<T>(o);
-      });
-    } else {
-      this.data = [];
-      this.data.push(json.hasOwnProperty('value') ? json.value : json);
-    }
-  }
-
-  count(): number {
-    return this.data.length;
-  }
-
-  firstOrDefault(): T|null {
-    if (this.count() > 0) {
-      return GetResult.convertODataInfo<T>(this.data[0]);
-    }
-    return null;
-  }
-
-  toList(): Array<T> {
-    return this.data;
-  }
-
-  static convertODataInfo<T>(item: any): T {
-    if (item['@odata.type']) {
-      if (!item._odataInfo) {
-        item._odataInfo = new ODataModelInfo();
-      }
-      item._odataInfo.type = item['@odata.type'];
-      delete item['@odata.type'];
-
-      let parts = item._odataInfo.type.split('.');
-      item._odataInfo.shortType = parts[parts.length - 1];
-    }
-    return item;
-  }
-}
-
-export interface ODataDto {
-  _odataInfo: ODataModelInfo;
-}
-
-export class ODataDto implements ODataDto {
-  constructor(modelInfo = new ODataModelInfo()) {
-    this._odataInfo = modelInfo;
-  }
-  _odataInfo: ODataModelInfo;
-}
-
-export interface ODataModelInfo {
-  type: string|null;
-  shortType: string|null;
-}
-
-export class ODataModelInfo implements ODataModelInfo {
-  type: string|null = null;
-  shortType: string|null = null;
 }
