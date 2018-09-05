@@ -1,8 +1,10 @@
 ﻿
 import '@polymer/paper-button/paper-button';
 import '@leavittsoftware/user-manager/lib/user-manager';
+import '@leavittsoftware/api-service/lib/api-service-element';
 
-import {ApiService, ODataDto} from '@leavittsoftware/api-service/lib/api-service';
+import {ApiServiceElement} from '@leavittsoftware/api-service/lib/api-service-element';
+import {ODataDto} from '@leavittsoftware/api-service/lib/odata-dto';
 import {customElement, listen, property, query} from '@polymer/decorators';
 import {DeclarativeEventListeners} from '@polymer/decorators/lib/declarative-event-listeners.js';
 import {html, PolymerElement} from '@polymer/polymer/polymer-element';
@@ -13,7 +15,7 @@ import {html, PolymerElement} from '@polymer/polymer/polymer-element';
 
   @property({type: String}) error: string = 'none';
 
-  @query('api-service') lssApiService: ApiService;
+  @query('api-service') lssApiService: ApiServiceElement;
 
   static get template() {
     return html`
