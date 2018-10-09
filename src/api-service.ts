@@ -222,9 +222,10 @@ export class ApiService {
       return Promise.reject(`404: Endpoint not found.`);
     }
 
+    const text = await response.text();
     let json;
     try {
-      json = await response.json();
+      json = text.length ? JSON.parse(text) : {};
     } catch (error) {
       return Promise.reject(`The server sent back invalid JSON. ${error}`);
     }
