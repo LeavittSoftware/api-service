@@ -149,7 +149,7 @@
         return Promise.reject(json.error.message);
       }
 
-      if (response.status === 200) {
+      if (response.status === 200 || response.status === 201) {
         return Promise.resolve(json);
       } else {
         return Promise.reject('Request error, please try again later.');
