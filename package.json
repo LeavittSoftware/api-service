@@ -9,7 +9,7 @@
   ],
   "dependencies": {
     "@leavittsoftware/titanium-elements": "^1.0.249",
-    "@leavittsoftware/user-manager": "^7.0.54",
+    "@leavittsoftware/user-manager": "^8.0.1",
     "lit-element": "^2.1.0"
   },
   "devDependencies": {

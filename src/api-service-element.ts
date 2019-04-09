@@ -1,4 +1,4 @@
-﻿import {determineIsDevelopment} from '@leavittsoftware/titanium-elements/lib/titanium-dev-detection-mixin'
+﻿import {determineIsDevelopment} from '@leavittsoftware/titanium-elements/lib/titanium-dev-detection-mixin';
 import {customElement, LitElement, property} from 'lit-element';
 
 import {ApiService} from './api-service';
