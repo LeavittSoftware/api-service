@@ -14,9 +14,9 @@
     "dependencies": {
         "@leavittsoftware/api-service": "file:leavittsoftware-api-service-1.0.0.tgz",
         "@polymer/decorators": "^3.0.0",
-        "@polymer/paper-button": "^3.0.0-pre.21",
-        "@polymer/polymer": "^3.0.5",
-        "@webcomponents/webcomponentsjs": "^2.0.0",
+        "@polymer/paper-button": "^3.0.1",
+        "@polymer/polymer": "^3.2.0",
+        "@webcomponents/webcomponentsjs": "^2.2.7",
         "babel-polyfill": "^6.26.0",
         "whatwg-fetch": "^2.0.4"
     }
