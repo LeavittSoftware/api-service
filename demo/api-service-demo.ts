@@ -20,7 +20,7 @@ import {html, PolymerElement} from '@polymer/polymer/polymer-element';
   static get template() {
     return html`
         <user-manager></user-manager>
-        <api-service app-name="Testing" id="service"></api-service>
+        <api-service appName="Testing" id="service"></api-service>
 
         <h2>lss-api-service Fruits CRUD Demo</h2>
         <paper-button id="getButton" raised>Get Top 5 Fruits</paper-button>
@@ -52,7 +52,7 @@ import {html, PolymerElement} from '@polymer/polymer/polymer-element';
 
     let result;
     try {
-      result = await this.lssApiService.getAsync<Fruit>('Fruits/?$top=5&$orderby=Id desc', ' Testing');
+      result = await this.lssApiService.getAsync<Fruit>('Fruits/?$top=5&$orderby=Id desc');
     } catch (error) {
       this.error = error;
       return;
