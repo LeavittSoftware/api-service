@@ -1,9 +1,8 @@
-import {authenticatedTokenMixin} from '@leavittsoftware/user-manager/lib/authenticated-token-mixin';
+import {GetUserManagerInstance} from '@leavittsoftware/user-manager/lib/user-manager';
 import {BearerTokenProvider} from './bearer-token-provider';
 
-export class AuthenticatedTokenProvider extends authenticatedTokenMixin
-(class {}) implements BearerTokenProvider {
+export class AuthenticatedTokenProvider implements BearerTokenProvider {
   async _getBearerTokenAsync() {
-    return await this._getAccessTokenAsync();
+    return await GetUserManagerInstance().getAccessTokenAsync();
   }
 }
